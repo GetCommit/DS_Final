@@ -8,6 +8,6 @@ NYC Property Sales (2010-2018): https://data.cityofnewyork.us/City-Government/DO
 
 ### Coordinates to Neighborhood
 
-We are using [MapBox API](https://account.mapbox.com/) to convert coordinates (longitude, latitude) to NYC neiborhoods. We are maintaining a cache for all the coordinates in our dataset to save API calls (money). This cache can be populated via the `populate_cache.py` script:
+We are using [MapBox API](https://account.mapbox.com/) to convert coordinates (longitude, latitude) to NYC neiborhoods. We are maintaining a cache for all the coordinates in our dataset to save API calls (money). This cache can be populated when the `cache` module is imported as such:
 
-python3 populate_cache.py DOHMH_New_York_City_Restaurant_Inspection_Results.csv cache.json
+`from cache import *`
