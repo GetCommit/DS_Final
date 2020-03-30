@@ -10,6 +10,8 @@ requests = "*"
 pandas = "*"
 mapbox = "*"
 tqdm = "*"
+ratelimit = "*"
+backoff = "*"
 
 [requires]
 python_version = "3.7"

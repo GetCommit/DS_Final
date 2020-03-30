@@ -11,3 +11,6 @@ NYC Property Sales (2010-2018): https://data.cityofnewyork.us/City-Government/DO
 We are using [MapBox API](https://account.mapbox.com/) to convert coordinates (longitude, latitude) to NYC neiborhoods. We are maintaining a cache for all the coordinates in our dataset to save API calls (money). This cache can be populated when the `cache` module is imported as such:
 
 `from cache import *`
+
+The total time to populate our cache is at least 1 hour due to the rate limit of 600 req/s of the MapBox API. Therefore, it is recommended to use the already-populated cache whenever possible (meaning do not delete `cache.json`)
+

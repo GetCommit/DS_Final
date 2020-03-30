@@ -5,10 +5,15 @@ from os import path
 import pandas as pd
 from mapbox import Geocoder
 from tqdm import tqdm
+from ratelimit import limits, RateLimitException
+from backoff import on_exception, expo
 
 MAPBOX_TOKEN = getenv("MAPBOX_TOKEN")
 geocoder = Geocoder(access_token=MAPBOX_TOKEN)
+ONE_MINUTE = 60
 
+@on_exception(expo, RateLimitException, max_tries=8)
+@limits(calls=500, period=ONE_MINUTE)
 def query_mapbox(lat, lon):
     response = geocoder.reverse(
         lon=lon,
@@ -34,7 +39,6 @@ def cache_geos(path):
             miss += 1
         else:
             hit += 1
-        print(hit, miss, hit/(hit+miss))
 
     return cache
 
