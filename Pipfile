@@ -12,6 +12,7 @@ mapbox = "*"
 tqdm = "*"
 ratelimit = "*"
 backoff = "*"
+pyspark = "*"
 
 [requires]
 python_version = "3.7"

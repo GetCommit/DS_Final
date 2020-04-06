@@ -5,15 +5,17 @@ from os import path
 import pandas as pd
 from mapbox import Geocoder
 from tqdm import tqdm
-from ratelimit import limits, RateLimitException
+from ratelimit import limits, RateLimitException, sleep_and_retry
 from backoff import on_exception, expo
 
 MAPBOX_TOKEN = getenv("MAPBOX_TOKEN")
+print(MAPBOX_TOKEN)
 geocoder = Geocoder(access_token=MAPBOX_TOKEN)
 ONE_MINUTE = 60
 
-@on_exception(expo, RateLimitException, max_tries=8)
-@limits(calls=500, period=ONE_MINUTE)
+# @on_exception(expo, RateLimitException, max_tries=8)
+@sleep_and_retry
+@limits(calls=450, period=ONE_MINUTE)
 def query_mapbox(lat, lon):
     response = geocoder.reverse(
         lon=lon,
@@ -31,9 +33,11 @@ def cache_geos(path):
     miss = 0
     hit = 0
     cache = {}
-    df = pd.read_csv(path, header=0)
+    # add float_precision to fix rounding issue
+    df = pd.read_csv(path, header=0, float_precision='round_trip')
     for index, row in tqdm(df.iterrows()):
         coordinate = "("+str(row["Latitude"])+","+str(row["Longitude"])+")"
+        # print(coordinate)
         if coordinate not in cache:
             cache[coordinate] = query_mapbox(lat=row["Latitude"], lon=row["Longitude"])
             miss += 1
@@ -44,8 +48,13 @@ def cache_geos(path):
 
 def get_neighborhood(lat, lon):
     coordinate = "("+str(lat)+","+str(lon)+")"
-    return cache[coordinate]
-        
+    result = cache[coordinate]
+    # there are 5482 coordinates with "(0.0,0.0)" which will return null in the end
+    # if result is None:
+    #     print(coordinate)
+    return result
+
+
 cache = {}
 if not path.exists("cache.json"):
     print("Cache does not exist. Populating cache by querying MapBox API...")
@@ -55,3 +64,6 @@ if not path.exists("cache.json"):
 else:
     with open("cache.json", 'r') as f:
         cache = json.load(f)
+        # print(len(cache))
+        # cache_modify()
+

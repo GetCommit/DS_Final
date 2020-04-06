@@ -14,3 +14,5 @@ We are using [MapBox API](https://account.mapbox.com/) to convert coordinates (l
 
 The total time to populate our cache is at least 1 hour due to the rate limit of 600 req/s of the MapBox API. Therefore, it is recommended to use the already-populated cache whenever possible (meaning do not delete `cache.json`)
 
+### ETL
+We used Spark to clean and join the datasets in etl.py. The program will first transform a column from each data frame using the cached Coordinates to Neighborhood mapping. The joined data frame will be saved in /Joined Data folder, and the size will be about 4.8 GB. 
