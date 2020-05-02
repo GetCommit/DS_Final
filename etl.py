@@ -83,21 +83,23 @@ if __name__ == '__main__':
     # restaurant_df.show()
 
     # aggregate property data by date and neighborhood to get average sales price for each neighborhood
-    property_df = property_df.groupby("NEIGHBORHOOD").agg((F.sum(property_df["AVERAGE SALE PRICE"] * property_df["NUMBER OF SALES"])/F.sum(property_df["NUMBER OF SALES"])).alias("AVERAGE PRICE"))
+    property_df = property_df.groupby("NEIGHBORHOOD", "YEAR").agg((F.sum(property_df["AVERAGE SALE PRICE"] * property_df["NUMBER OF SALES"])/F.sum(property_df["NUMBER OF SALES"])).alias("AVERAGE PRICE")).orderBy("NEIGHBORHOOD")
     # property_df.show()
 
     property_df = transform_property_data(property_df)
     
-    restaurant_df = restaurant_df.na.drop(subset=["GEO_TRANS"])
-    property_df = property_df.na.drop(subset=["NEIGHBOR_TRANS"])
+    restaurant_df = restaurant_df.na.drop(subset=["GEO_TRANS", "GRADE DATE"])
+    property_df = property_df.na.drop(subset=["NEIGHBOR_TRANS", "YEAR"])
+    restaurant_df.printSchema()
+    # property_df.show()
 
     # Test number of nulls in df
     # restaurant_df.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in restaurant_df.columns]).show()
     # print(restaurant_df.count())
 
     # print(restaurant_df)
-    df = restaurant_df.join(property_df, (restaurant_df.GEO_TRANS.contains(property_df.NEIGHBOR_TRANS)) | (restaurant_df.GEO_TRANS == property_df.NEIGHBOR_TRANS), how='inner')
-    # df.show()
+    df = restaurant_df.join(property_df, ((restaurant_df.GEO_TRANS.contains(property_df.NEIGHBOR_TRANS)) | (restaurant_df.GEO_TRANS == property_df.NEIGHBOR_TRANS)) & (restaurant_df['INSPECTION DATE'].substr(7, 11) == property_df.YEAR), how='inner')
+    df.show()
     print(df.count())
     df.coalesce(1).write.csv("Joined Data", header='true')
     spark.stop()
