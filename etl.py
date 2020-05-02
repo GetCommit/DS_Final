@@ -81,9 +81,13 @@ if __name__ == '__main__':
     # transform geo info to neighbor info in restaurant df
     restaurant_df = transform_restaurant_data(restaurant_df)
     # restaurant_df.show()
-    property_df = transform_property_data(property_df)
+
+    # aggregate property data by date and neighborhood to get average sales price for each neighborhood
+    property_df = property_df.groupby("NEIGHBORHOOD").agg((F.sum(property_df["AVERAGE SALE PRICE"] * property_df["NUMBER OF SALES"])/F.sum(property_df["NUMBER OF SALES"])).alias("AVERAGE PRICE"))
     # property_df.show()
 
+    property_df = transform_property_data(property_df)
+    
     restaurant_df = restaurant_df.na.drop(subset=["GEO_TRANS"])
     property_df = property_df.na.drop(subset=["NEIGHBOR_TRANS"])
 

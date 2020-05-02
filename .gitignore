@@ -3,3 +3,7 @@
 *.pyc
 
 *.csv
+
+.idea
+
+/Joined\ Data/
