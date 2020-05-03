@@ -4,6 +4,10 @@
 
 *.csv
 
-.idea
+.idea/
 
 /Joined\ Data/
+/Joined
+*.zip
+
+*pem
